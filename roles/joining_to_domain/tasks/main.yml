@@ -1,32 +1,32 @@
 ---
-#- name: Install pakages for Centos
-#  block:
-#    - name: Install packages
-#      yum:
-#        name: "{{ item }}"
-#        state: installed
-#      with_items: "{{ centos.packages }}"
-#
-#    - name: Upgrade pip
-#      shell: /bin/bash -c "python3 -m pip install --upgrade pip"
-#
-#    - name: Upgrade pexpect
-#      shell: /bin/bash -c "pip install --upgrade pexpect"
-#
-#  when: ansible_distribution == 'CentOS'
-#
-#- name: Install pakages for Ubuntu
-#  block:
-#    - name: Install packages
-#      apt:
-#        name: "{{ item }}"
-#        state: present
-#      with_items: "{{ ubuntu.packages }}"
-#      register: apt_action
-#      retries: 100
-#      until: apt_action is success or ('Failed to lock apt for exclusive operation' not in apt_action.msg and '/var/lib/dpkg/lock' not in apt_action.msg)
-#
-#  when: ansible_distribution == 'Ubuntu'
+- name: Install pakages for Centos
+  block:
+    - name: Install packages
+      yum:
+        name: "{{ item }}"
+        state: installed
+      with_items: "{{ centos.packages }}"
+
+    - name: Upgrade pip
+      shell: /bin/bash -c "python3 -m pip install --upgrade pip"
+
+    - name: Upgrade pexpect
+      shell: /bin/bash -c "pip install --upgrade pexpect"
+
+  when: ansible_distribution == 'CentOS'
+
+- name: Install pakages for Ubuntu
+  block:
+    - name: Install packages
+      apt:
+        name: "{{ item }}"
+        state: present
+      with_items: "{{ ubuntu.packages }}"
+      register: apt_action
+      retries: 100
+      until: apt_action is success or ('Failed to lock apt for exclusive operation' not in apt_action.msg and '/var/lib/dpkg/lock' not in apt_action.msg)
+
+  when: ansible_distribution == 'Ubuntu'
 
 
 - name: Checking Domain Join status
