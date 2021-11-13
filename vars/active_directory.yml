@@ -6,4 +6,6 @@
     domain_controller_fqdn:      <fqdn>
     administrator_account:       <user>
     administrator_password:      "{{ ad_pass }}"
-    allow_ssh_group:             <group>
+    admin_ssh_group:             linux_adm
+    user_ssh_group:              linux_user
+
