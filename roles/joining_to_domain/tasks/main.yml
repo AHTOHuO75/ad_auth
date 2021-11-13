@@ -7,8 +7,8 @@
         state: installed
       with_items: "{{ centos.packages }}"
 
-    - name: Upgrade pip
-      shell: /bin/bash -c "python -m pip install --upgrade pip"
+#    - name: Upgrade pip
+#      shell: /bin/bash -c "python -m pip install --upgrade pip"
 
     - name: Upgrade pexpect
       shell: /bin/bash -c "python -m pip install --upgrade pexpect"
@@ -63,13 +63,13 @@
   lineinfile:
     backup: yes
     path: /etc/sssd/sssd.conf
-    line: simple_allow_groups = {{ ad_server.allow_ssh_group }}
+    line: simple_allow_groups = {{ ad_server.admin_ssh_group }}, {{ ad_server.user_ssh_group }}
   notify: restart sssd
 
 - name: Allow sudo for group
   lineinfile:
     path: /etc/sudoers.d/{{ ad_server.domain_name.split('.')[0] }}
-    line: "%{{ ad_server.allow_ssh_group }} ALL=(ALL) ALL"
+    line: "%{{ ad_server.admin_ssh_group }} ALL=(ALL) ALL"
     state: present
     create: yes
 
