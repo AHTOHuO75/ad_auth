@@ -8,10 +8,10 @@
       with_items: "{{ centos.packages }}"
 
     - name: Upgrade pip
-      shell: /bin/bash -c "python3 -m pip install --upgrade pip"
+      shell: /bin/bash -c "python -m pip install --upgrade pip"
 
     - name: Upgrade pexpect
-      shell: /bin/bash -c "pip install --upgrade pexpect"
+      shell: /bin/bash -c "python -m pip install --upgrade pexpect"
 
   when: ansible_distribution == 'CentOS'
 
