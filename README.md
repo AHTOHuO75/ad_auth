@@ -1,5 +1,7 @@
 # ad_auth
 
+Playbook for adding linux servers (Ubuntu & Centos 7) to Active Directory domain and setting up ssh authentication.  
+
 ansible.cfg:
 ---
 
