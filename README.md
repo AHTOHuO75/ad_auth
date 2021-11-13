@@ -1,1 +1,1 @@
-# jad_auth
+# ad_auth
