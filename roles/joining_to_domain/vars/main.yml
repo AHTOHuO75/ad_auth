@@ -10,7 +10,6 @@ centos:
     - samba-common-tools
     - python-pip
     - python-setuptools
-    - pexpect
     - python3-pip
 
 ubuntu:
