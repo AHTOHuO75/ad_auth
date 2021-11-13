@@ -1,0 +1,20 @@
+---
+- name: enable and start chronyd
+  systemd:
+    name: chronyd
+    enabled: yes
+    state: started
+
+- name: restart chronyd
+  systemd:
+    name: chronyd
+    state: restarted
+    
+- name: daemons reload
+  systemd:
+    daemon_reload: yes
+
+- name: restart timesyncd
+  systemd:
+    name: systemd-timesyncd
+    state: restarted

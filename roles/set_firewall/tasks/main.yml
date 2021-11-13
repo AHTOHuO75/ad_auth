@@ -1,0 +1,24 @@
+---
+- name: get service facts
+  service_facts:
+
+- name: Set rule for firewalld
+  firewalld:
+    source: "{{ ad_server.domain_controller_ip }}"
+    zone: trusted
+    state: enabled
+    permanent: yes
+    immediate: yes
+  when:
+    - ansible_facts.services["firewalld.service"] is defined
+    - ansible_facts.services["firewalld.service"].state == "running"
+
+- name: Set rule for ufw
+  ufw:
+    rule: allow
+    src: "{{ ad_server.domain_controller_ip }}"
+  when:
+    - ansible_facts.services["ufw"] is defined or ansible_facts.services["ufw.service"] is defined
+    - ansible_facts.services["ufw"].state == "running" or ansible_facts.services["ufw.service"].state == "running"
+
+

@@ -1,0 +1,31 @@
+---
+- name: restart systemd-resolved
+  systemd:
+    name: systemd-resolved
+    state: restarted
+  when:
+    - ansible_facts.services["systemd-resolved.service"] is defined
+    - ansible_facts.services["systemd-resolved.service"].state == "running"
+
+- name: restart network-manager
+  systemd:
+    name: NetworkManager
+    state: restarted
+  when:
+    - ansible_facts.services["NetworkManager.service"] is defined
+    - ansible_facts.services["NetworkManager.service"].state == "running"
+
+- name: restart network ubuntu
+  systemd:
+    name: systemd-networkd
+    state: restarted
+
+
+- name: restart network centos
+  systemd:
+    name: network
+    state: restarted
+
+- name: daemons reload
+  systemd:
+    daemon_reload: yes

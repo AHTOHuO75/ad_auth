@@ -1,0 +1,79 @@
+---
+- name: get service facts
+  service_facts:
+
+- name: Setting up DC as DNS on Centos
+  block:
+    - name: Determine default interface
+      shell: "/sbin/route -n | grep ^0.0.0.0"
+      register: default_route
+
+    - set_fact:
+        interface_name: "{{ default_route.stdout.split()[-1] }}"
+
+    - debug:
+        msg: "{{ interface_name }}"
+      when: debug
+
+    - name: Remove any DNS in network interface settings
+      lineinfile:
+        backup: yes
+        path: /etc/sysconfig/network-scripts/ifcfg-{{ interface_name }}
+        regexp: "^DNS.*"
+        state: absent
+
+    - name: Add DC ip address as DNS
+      lineinfile:
+        path: /etc/sysconfig/network-scripts/ifcfg-{{ interface_name }}
+        line: DNS1={{ ad_server.domain_controller_ip }}
+        state: present
+      notify: restart network centos
+
+    - name: Rstart network service
+      systemd:
+        name: network
+        state: restarted
+
+    - name: Configure dhcp client dns
+      template:
+        dest: /etc/dhcp/dhclient.conf
+        src: dhclient.conf
+      notify: restart network-manager
+
+  when: ansible_distribution == 'CentOS'
+
+
+- name: Setting up DC as DNS on Ubuntu
+  block:
+    - name: Remove any DNS in resolved.conf
+      lineinfile:
+        path: /etc/systemd/resolved.conf
+        regexp: "^DNS.*"
+        state: absent
+
+    - name: Add DC ip address as DNS
+      lineinfile:
+        path: /etc/systemd/resolved.conf
+        line: DNS={{ ad_server.domain_controller_ip }}
+        state: present
+      notify:
+        - daemons reload
+        - restart network ubuntu
+        - restart systemd-resolved
+
+    - name: Delete /etc/resolv.conf
+      file:
+        path: /etc/resolv.conf
+        state: absent
+
+    - name: Link new resolv.conf
+      file:
+        src: /run/systemd/resolve/resolv.conf
+        dest: /etc/resolv.conf
+        state: link
+
+  when: ansible_distribution == 'Ubuntu'
+
+- name: Flush handler
+  meta: flush_handlers
+

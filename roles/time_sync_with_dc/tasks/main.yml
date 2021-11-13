@@ -1,0 +1,51 @@
+---
+- name: get service facts
+  service_facts:
+
+- name: Setting up time synchronisation with DC on Centos
+  block:
+    - name: Stop and disable NTPd
+      yum:
+        name: ntpd
+        state: absent
+      ignore_errors: yes
+      when:
+        - ansible_facts.services["ntpd.service"] is defined
+        - ansible_facts.services["ntpd.service"].state == "running"
+
+    - name: Install chrony
+      yum:
+        name: chrony
+        state: installed
+      notify: enable and start chronyd
+
+    - name: Create new config
+      template:
+        dest: /etc/chrony.conf
+        src: chrony.conf
+        backup: yes
+      notify: restart chronyd
+
+  when: ansible_distribution == 'CentOS'
+
+- name: Setting up time synchronisation with DC on Ubuntu
+  block:
+    - name: Add DC name to timesyncd.conf
+      lineinfile:
+        path: /etc/systemd/timesyncd.conf
+        line: NTP=dc.sense7.local
+        state: present
+
+    - name: Add rootdistance name to timesyncd.conf
+      lineinfile:
+        path: /etc/systemd/timesyncd.conf
+        line: RootDistanceMaxSec=30
+        state: present
+      notify:
+        - daemons reload
+        - restart timesyncd
+
+  when: ansible_distribution == 'Ubuntu'
+
+- name: Flush handler
+  meta: flush_handlers

@@ -1,0 +1,13 @@
+---
+- name: Join Linux to Active Directory Domain (Centos 7, Ubuntu)
+  hosts:         all
+  become:        true
+  vars_files:
+    - vars/active_directory.yml
+    - vars/passwd.yml
+
+  roles:
+#    - role: set_firewall
+#    - role: set_dc_as_dns
+#    - role: time_sync_with_dc
+    - role: joining_to_domain

@@ -1,0 +1,97 @@
+---
+#- name: Install pakages for Centos
+#  block:
+#    - name: Install packages
+#      yum:
+#        name: "{{ item }}"
+#        state: installed
+#      with_items: "{{ centos.packages }}"
+#
+#    - name: Upgrade pip
+#      shell: /bin/bash -c "python3 -m pip install --upgrade pip"
+#
+#    - name: Upgrade pexpect
+#      shell: /bin/bash -c "pip install --upgrade pexpect"
+#
+#  when: ansible_distribution == 'CentOS'
+#
+#- name: Install pakages for Ubuntu
+#  block:
+#    - name: Install packages
+#      apt:
+#        name: "{{ item }}"
+#        state: present
+#      with_items: "{{ ubuntu.packages }}"
+#      register: apt_action
+#      retries: 100
+#      until: apt_action is success or ('Failed to lock apt for exclusive operation' not in apt_action.msg and '/var/lib/dpkg/lock' not in apt_action.msg)
+#
+#  when: ansible_distribution == 'Ubuntu'
+
+
+- name: Checking Domain Join status
+  shell: /bin/bash -c "/usr/sbin/realm discover {{ ad_server.domain_name }} | grep -q sssd"
+  register: ad_status
+  changed_when: false
+  ignore_errors: true
+
+- debug:
+    msg: "ad_status: {{ ad_status.rc }}"
+  when: debug
+
+- name: Joining
+  expect:
+    command: /bin/bash -c "/usr/sbin/realm join {{ ad_server.domain_name }} --user={{ ad_server.administrator_account }}"
+    responses:
+      Password.*: "{{ ad_server.administrator_password }}"
+  when: ad_status.rc != 0
+  no_log: false
+
+- name: Allow User Login without FQDN, home directory without domain, chenge ap to simple
+  lineinfile:
+    backup: yes
+    state: present
+    dest: /etc/sssd/sssd.conf
+    regexp: '^{{ item.search }}'
+    line: '{{ item.replace }}'
+  with_items:
+    - { search: 'use_fully_qualified_names', replace: 'use_fully_qualified_names = False' }
+    - { search: 'fallback_homedir', replace: 'fallback_homedir = /home/%u' }
+    - { search: 'access_provider', replace: 'access_provider = simple' }
+
+- name: Set group for allow login
+  lineinfile:
+    backup: yes
+    path: /etc/sssd/sssd.conf
+    line: simple_allow_groups = {{ ad_server.allow_ssh_group }}
+  notify: restart sssd
+
+- name: Allow sudo for group
+  lineinfile:
+    path: /etc/sudoers.d/{{ ad_server.domain_name.split('.')[0] }}
+    line: "%{{ ad_server.allow_ssh_group }} ALL=(ALL) ALL"
+    state: present
+    create: yes
+
+- name: Allow users to make home directories in Centos
+  shell: "authconfig --enablemkhomedir --enablesssdauth --updateall"
+  register: output
+  when: ansible_distribution == 'CentOS'
+
+- debug:
+    msg: "{{ output }}"
+  when: debug
+
+- name: Allow users to make home directories in Ubuntu
+  lineinfile:
+    path: /etc/pam.d/common-session
+    insertafter: ^session.*optional.*pam_sss\.so
+    line: session required        pam_mkhomedir.so skel=/etc/skel/ umask=0022
+    state: present
+  when: ansible_distribution == 'Ubuntu'
+
+- name: Enable and start sssd
+  systemd:
+    name: sssd
+    enabled: yes
+    state: restarted

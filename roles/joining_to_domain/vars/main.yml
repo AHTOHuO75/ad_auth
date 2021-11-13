@@ -1,0 +1,23 @@
+centos:
+  packages:
+    - epel-release
+    - realmd
+    - sssd
+    - oddjob
+    - oddjob-mkhomedir
+    - adcli
+    - samba-common
+    - samba-common-tools
+    - python-pip
+    - python-setuptools
+    - pexpect
+    - python3-pip
+
+ubuntu:
+  packages:
+    - realmd
+    - sssd
+    - oddjob
+    - oddjob-mkhomedir
+    - adcli
+    - samba-common

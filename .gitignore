@@ -1,3 +1,7 @@
+.ansible_vault_pass
+logs
+.idea
+inventories/
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
