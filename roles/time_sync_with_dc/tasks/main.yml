@@ -33,7 +33,7 @@
     - name: Add DC name to timesyncd.conf
       lineinfile:
         path: /etc/systemd/timesyncd.conf
-        line: NTP=dc.sense7.local
+        line: NTP={{ ad_server.domain_controller_fqdn }}
         state: present
 
     - name: Add rootdistance name to timesyncd.conf
