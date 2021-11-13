@@ -7,7 +7,7 @@
     - vars/passwd.yml
 
   roles:
-#    - role: set_firewall
-#    - role: set_dc_as_dns
-#    - role: time_sync_with_dc
+    - role: set_firewall
+    - role: set_dc_as_dns
+    - role: time_sync_with_dc
     - role: joining_to_domain
