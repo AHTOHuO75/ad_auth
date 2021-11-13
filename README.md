@@ -3,12 +3,19 @@
 ansible.cfg:
 
 [defaults]
+
 host_key_checking   = false
+
 inventory           = inventories/hosts
+
 private_key_file    = ~/.ssh/id_rsa
+
 remote_user         = ansible
+
 log_path            = logs
+
 vault_password_file = .ansible_vault_pass
+
 
 You should set 
 - inventory
@@ -26,13 +33,21 @@ active_directory.yml:
 ---
 - debug:                         true
 - ad_server:
+
     domain_name:                 <domain>
+    
     domain_controller_ip:        <ip>
+    
     domain_controller_fqdn:      <fqdn>
+    
     administrator_account:       <user>
+    
     administrator_password:      "{{ ad_pass }}"
+    
     allow_ssh_group:             <group>
+    
   
  Settings for active directory connection.
  allow_ssh_group - group whith users which can connect over ssh.
+ debug  - for some denug information. May be set to false.
  
