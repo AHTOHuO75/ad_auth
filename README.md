@@ -47,7 +47,7 @@ active_directory.yml:
     allow_ssh_group:             <group>
     
   
- Settings for active directory connection.
- allow_ssh_group - group whith users which can connect over ssh.
+ Settings for active directory connection.  
+ allow_ssh_group - group whith users which can connect over ssh.  
  debug  - for some denug information. May be set to false.
  
