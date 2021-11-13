@@ -27,7 +27,7 @@ active_directory.yml:
 ---
 
 - debug:                         true
-- ad_server:
+- ad_server:  
     domain_name:                 <domain>  
     domain_controller_ip:        <ip>  
     domain_controller_fqdn:      <fqdn>  
